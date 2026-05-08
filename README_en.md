@@ -146,9 +146,9 @@ A complete analytical system that integrates data from **INEC (ESPAC)**, **MAG**
 
 ---
 
-## Author
+## Authors
 
-**Jean Avila** — Research Project for Digital 2026 Journal
+Ing. Ashley Aguilar-Serrano, Ing. Jean Ávila-Villaprado, Ing. Bertha Mazon-Olivo, Ing. Maritza Pinta
 
 > *"Transforming scattered agricultural data into actionable knowledge for Ecuador's productive sector."*
 

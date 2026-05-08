@@ -146,9 +146,9 @@ Se desarrollaron **7 dashboards temáticos** en Tableau Public con filtros diná
 
 ---
 
-## Autor
+## Autores
 
-**Jean Avila** — Proyecto de investigación para Revista Digital 2026
+Ing. Ashley Aguilar-Serrano, Ing. Jean Ávila-Villaprado, Ing. Bertha Mazon-Olivo, Ing. Maritza Pinta
 
 > *"Transformando datos agrícolas dispersos en conocimiento accionable para el sector productivo del Ecuador."*
 

@@ -1,0 +1,51 @@
+;;;;;;;;;;INDICE;
+;;;;;;;;;;;
+;;;;;;;;;;;
+ENCUESTA DE SUPERFICIE Y PRODUCCIÓN AGROPECUARIA CONTINUA 2014;;;;;;;;;;;
+TABLA 9. SUPERFICIE, PRODUCCIÓN Y VENTAS POR CONDICIÓN DEL CULTIVO, SEGÚN ESPECIES DE FLORES;;;;;;;;;;;
+;;;;;;;;;;;
+ESPECIE DE FLOR;;SUPERFICIE (Has.);;PRODUCCIÓN;VENTAS (en unidades);;;;;;
+;;Plantada o Sembrada;Cosechada o Cortada;N° total de tallos cortados;Full tabaco;Tabaco;Bonche;Bouquet;;;
+;;;;;;;;;;;
+TOTAL NACIONAL;Bajo invernadero;5.395;5.192;3.478.298.094;2.220.593;6.523.292;73.352.159;12.323;;;
+;En campo abierto;1.334;1.333;1.321.843.315;337.311;1.430.616;98.712.361;8.998;;Id_type_flower;type_flower
+;;;;;;;;;;1;PERMANENTES
+FLORES PERMANENTES;;;;;;;;;;2;TRANSITORIAS
+;;;;;;;;;;;
+CLAVEL;Bajo invernadero;141;141;185.792.276;64.866;257.501;1.275.005;.;;;
+;En campo abierto;.;.;.;.;.;.;.;;id_especie;especie
+GINGER;Bajo invernadero;.;.;.;.;.;.;.;;1;CLAVEL
+;En campo abierto;10;9;1.170.000;3.500;.;.;5.760;;2;GINGER
+GYPSOPHILA;Bajo invernadero;61;61;68.320.000;96.852;288.000;.;.;;3;GYPSOPHILA
+;En campo abierto;540;540;269.459.454;130.453;1.043.546;11.156.048;.;;4;HELICONIAS
+HELICONIAS;Bajo invernadero;.;.;.;.;.;.;.;;5;HYPERICUM
+;En campo abierto;20;20;800.000;8.000;.;.;.;;6;LIMONIUM
+HYPERICUM;Bajo invernadero;7;7;3.600.000;12.000;.;.;.;;7;ROSA
+;En campo abierto;118;118;52.935.477;128.900;16.764;752.520;.;;8;OTRAS FLORES PERMANENTES
+LIMONIUM;Bajo invernadero;12;12;4.000.000;10.000;.;.;.;;9;AMY
+;En campo abierto;0;0;3.249.600;16.609;.;.;.;;10;ASTER
+ROSA;Bajo invernadero;4.639;4.457;2.556.594.913;1.946.593;4.370.771;28.416.864;.;;11;CRISANTEMOS
+;En campo abierto;10;10;6.450.000;10.333;21.333;6.000;.;;12;DELPHINIUM
+OTRAS FLORES PERMANENTES;Bajo invernadero;209;195;223.324.200;66.950;1.359.125;3.177.752;323;;13;GIRASOLES
+;En campo abierto;133;133;44.277.187;34.443;43.743;2.050.407;.;;14;GODETIAS
+;;;;;;;;;;15;LYATRIS
+FLORES TRANSITORIAS;;;;;;;;;;16;OTRAS FLORES TRANSITORIAS
+;;;;;;;;;;;
+AMY;Bajo invernadero;.;.;.;.;.;.;.;;;
+;En campo abierto;1;1;60.000;.;5.280;.;.;;id_condicion;condicion
+ASTER;Bajo invernadero;4;4;3.437.500;.;.;343.750;.;;1;Bajo invernadero
+;En campo abierto;47;47;22.793.336;3.473;92.000;1.381.201;.;;2;En campo abierto
+CRISANTEMOS;Bajo invernadero;42;42;19.793.712;.;67.500;1.348.255;12.000;;;
+;En campo abierto;.;.;.;.;.;.;.;;;
+DELPHINIUM;Bajo invernadero;.;.;.;.;.;.;.;;;
+;En campo abierto;3;3;4.950.000;.;33.590;.;.;;;
+GIRASOLES;Bajo invernadero;7;7;1.618.500;.;12.324;105.600;.;;;
+;En campo abierto;42;42;3.492.723;600;19.200;94.292;.;;;
+GODETIAS;Bajo invernadero;5;5;7.658.250;.;.;425.457;.;;;
+;En campo abierto;85;85;121.569.575;.;.;6.753.865;.;;;
+LYATRIS;Bajo invernadero;.;.;.;.;.;.;.;;;
+;En campo abierto;7;7;5.000.000;.;25.000;.;.;;;
+OTRAS FLORES TRANSITORIAS;Bajo invernadero;267;260;404.158.744;23.332;168.072;38.259.476;.;;;
+;En campo abierto;319;319;785.635.963;1.000;130.160;76.518.029;3.238;;;
+;;;;;;;;;;;
+Fuente: INEC 2014;;;;;;;;;;;

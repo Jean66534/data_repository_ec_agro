@@ -1,0 +1,6 @@
+test_type,platform,scale,repetitions,mean_s,stdev_s,min_s,max_s
+SELECT *,free,232K,10,0.6689,0.1034,0.4853,0.7992
+COUNT(*),free,232K,10,0.747,0.1528,0.598,1.1156
+WHERE,free,232K,10,0.6511,0.1491,0.5099,0.8658
+GROUP BY,free,232K,10,0.7359,0.1629,0.5683,0.9967
+JOIN,free,232K,10,1.0243,0.1214,0.9069,1.3222

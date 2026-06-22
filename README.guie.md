@@ -11,7 +11,7 @@ A step-by-step guide to reproduce the full data pipeline for Ecuador's agricultu
 3. [Step 1 — Set Up Databricks](#step-1--set-up-databricks)
 4. [Step 2 — Create the Catalog and Schemas](#step-2--create-the-catalog-and-schemas)
 5. [Step 3 — Ingest Data into Bronze](#step-3--ingest-data-into-bronze)
-6. [Step 4 — Clean Data with Silver Notebooks](#step-4--clean-data-with-silver-notebooks)
+6. [Step 4 — Build Relational Model with Silver Notebooks](#step-4--build-relational-model-with-silver-notebooks)
 7. [Step 5 — Build the Gold Layer](#step-5--build-the-gold-layer)
 8. [Data Dictionary](#data-dictionary)
 9. [Architecture Diagram](#architecture-diagram)
@@ -23,7 +23,7 @@ A step-by-step guide to reproduce the full data pipeline for Ecuador's agricultu
 Before starting, make sure you have:
 
 - A **Databricks** account (free edition available — see link below)
-- The source Excel files located in `medallion-architecture/Bronze/`
+- The source data files located in `medallion-architecture/Bronze/`
 - Basic familiarity with SQL and Databricks notebooks
 
 > 🔗 **Databricks Free Edition (Community Edition):**
@@ -37,65 +37,87 @@ Before starting, make sure you have:
 
 ```
 repository/
-└── medallion-architecture/
-    ├── Bronze/                         ← Raw source files (Excel)
-    │   ├── dim_/                       ← Dimension source files (25 files)
-    │   │   ├── dim_anio.xlsx
-    │   │   ├── dim_causas.xlsx
-    │   │   ├── dim_condicion.xlsx
-    │   │   ├── dim_edad.xlsx
-    │   │   ├── dim_elemento_comercio_exterior.xlsx
-    │   │   ├── dim_empaque.xlsx
-    │   │   ├── dim_etnia.xlsx
-    │   │   ├── dim_flores.xlsx
-    │   │   ├── dim_formacion.xlsx
-    │   │   ├── dim_genero.xlsx
-    │   │   ├── dim_mes.xlsx
-    │   │   ├── dim_pais_iso.xlsx
-    │   │   ├── dim_periodo.xlsx
-    │   │   ├── dim_producto.xlsx
-    │   │   ├── dim_producto_comercio_exterior.xlsx
-    │   │   ├── dim_producto_ex_im.xlsx
-    │   │   ├── dim_producto_precios.xlsx
-    │   │   ├── dim_productor.xlsx
-    │   │   ├── dim_provincia.xlsx
-    │   │   ├── dim_rango_hectareas.xlsx
-    │   │   ├── dim_region.xlsx
-    │   │   ├── dim_superficie.xlsx
-    │   │   ├── dim_tipo_cultivo.xlsx
-    │   │   ├── dim_unidad.xlsx
-    │   │   └── dim_uso_suelo.xlsx
-    │   └── fact_/                      ← Fact source files (14 files)
-    │       ├── fact_causas_permanentes.xlsx
-    │       ├── fact_causas_transitorios.xlsx
-    │       ├── fact_comercial_agricola.xlsx
-    │       ├── fact_comercio_exterior_paises.xlsx
-    │       ├── fact_edad.xlsx
-    │       ├── fact_etnia.xlsx
-    │       ├── fact_flores.xlsx
-    │       ├── fact_formacion.xlsx
-    │       ├── fact_genero.xlsx
-    │       ├── fact_precios_productor.xlsx
-    │       ├── fact_produccion_agricola.xlsx
-    │       ├── fact_product_permanentes.xlsx
-    │       ├── fact_product_transitorios.xlsx
-    │       └── fact_uso_suelo_agricola.xlsx
-    │
-    ├── Silver/                         ← SQL notebooks: data cleaning
-    │   ├── notebook_1.sql              ← National dimensions + production/sales/surface/flowers
-    │   ├── notebook_2.sql              ← External trade dimensions + commercial facts
-    │   ├── notebook_3.sql              ← Producer characteristics (gender, age, ethnicity)
-    │   ├── notebook_4.sql              ← Producer prices dimensions + facts
-    │   ├── notebook_5.sql              ← Permanent & transitory crops + causes
-    │   ├── notebook_6.sql              ← Land use dimension + facts
-    │   └── notebook_7.sql              ← Foreign trade by country + ISO codes
-    │
-    └── Gold/                           ← SQL notebooks: analytical layer
-        ├── notebook_gold_1.sql         ← Production, flowers, demographics, crops fact tables
-        ├── notebook_gold_2.sql         ← Producer prices fact table + views
-        ├── notebook_gold_3.sql         ← Agricultural commercial fact table
-        ├── notebook_gold_4.sql         ← Foreign trade by country (simple join)
-        └── notebook_gold_5.sql         ← Foreign trade with ISO normalization + export views
+├── medallion-architecture/
+│   ├── Bronze/                         ← Raw data from source entities
+│   │   ├── Indice de publicacion ESPAC-2014/  ← ESPAC 2014 tables (T1.csv … T60.csv)
+│   │   ├── Indice de publicacion ESPAC 2015/  ← ESPAC 2015 tables
+│   │   ├── Indice de publicacion ESPAC 2016.xlsx
+│   │   ├── Indice_de publicacion_ESPAC_2017.xlsx
+│   │   ├── Tabulados ESPAC 2018.xlsx
+│   │   ├── Tabulados ESPAC CSV ESPAC 2019/    ← ESPAC 2019 tables
+│   │   ├── Tabulados CSV_ESPAC_ 2020/         ← ESPAC 2020 tables
+│   │   ├── Tabulados CSV_2021/                ← ESPAC 2021 tables
+│   │   ├── Tabulados CSV 2022/                ← ESPAC 2022 tables
+│   │   ├── TABULADOS_CSV 2023/                ← ESPAC 2023 tables
+│   │   ├── TABULADOS_ESPAC_2024_CVS/          ← ESPAC 2024 tables
+│   │   ├── FAOSTAT_data_es_12-10-2025.csv     ← Foreign trade from FAO
+│   │   └── mag_preciosproductor_2025mayo.csv  ← Producer prices from MAG
+│   │
+│   ├── Silver/                         ← Cleaned dimensional model
+│   │   ├── Data/                       ← Structured source files for the dimensional model
+│   │   │   ├── dim_/                   ← Dimension files (25 tables)
+│   │   │   │   ├── dim_anio.xlsx
+│   │   │   │   ├── dim_causas.xlsx
+│   │   │   │   ├── dim_condicion.xlsx
+│   │   │   │   ├── dim_edad.xlsx
+│   │   │   │   ├── dim_elemento_comercio_exterior.xlsx
+│   │   │   │   ├── dim_empaque.xlsx
+│   │   │   │   ├── dim_etnia.xlsx
+│   │   │   │   ├── dim_flores.xlsx
+│   │   │   │   ├── dim_formacion.xlsx
+│   │   │   │   ├── dim_genero.xlsx
+│   │   │   │   ├── dim_mes.xlsx
+│   │   │   │   ├── dim_pais_iso.xlsx
+│   │   │   │   ├── dim_periodo.xlsx
+│   │   │   │   ├── dim_producto.xlsx
+│   │   │   │   ├── dim_producto_comercio_exterior.xlsx
+│   │   │   │   ├── dim_producto_ex_im.xlsx
+│   │   │   │   ├── dim_producto_precios.xlsx
+│   │   │   │   ├── dim_productor.xlsx
+│   │   │   │   ├── dim_provincia.xlsx
+│   │   │   │   ├── dim_rango_hectareas.xlsx
+│   │   │   │   ├── dim_region.xlsx
+│   │   │   │   ├── dim_superficie.xlsx
+│   │   │   │   ├── dim_tipo_cultivo.xlsx
+│   │   │   │   ├── dim_unidad.xlsx
+│   │   │   │   └── dim_uso_suelo.xlsx
+│   │   │   └── fact_/                  ← Fact source files (14 tables)
+│   │   │       ├── fact_causas_permanentes.xlsx
+│   │   │       ├── fact_causas_transitorios.xlsx
+│   │   │       ├── fact_comercial_agricola.xlsx
+│   │   │       ├── fact_comercio_exterior_paises.xlsx
+│   │   │       ├── fact_edad.xlsx
+│   │   │       ├── fact_etnia.xlsx
+│   │   │       ├── fact_flores.xlsx
+│   │   │       ├── fact_formacion.xlsx
+│   │   │       ├── fact_genero.xlsx
+│   │   │       ├── fact_precios_productor.xlsx
+│   │   │       ├── fact_produccion_agricola.xlsx
+│   │   │       ├── fact_product_permanentes.xlsx
+│   │   │       ├── fact_product_transitorios.xlsx
+│   │   │       └── fact_uso_suelo_agricola.xlsx
+│   │   │
+│   │   ├── notebook_1.sql              ← National dimensions + production/sales/surface/flowers
+│   │   ├── notebook_2.sql              ← External trade dimensions + commercial facts
+│   │   ├── notebook_3.sql              ← Producer characteristics (gender, age, ethnicity)
+│   │   ├── notebook_4.sql              ← Producer prices dimensions + facts
+│   │   ├── notebook_5.sql              ← Permanent & transitory crops + causes
+│   │   ├── notebook_6.sql              ← Land use dimension + facts
+│   │   └── notebook_7.sql              ← Foreign trade by country + ISO codes
+│   │
+│   └── Gold/                           ← SQL notebooks: analytical layer
+│       ├── notebook_gold_1.sql         ← Production, flowers, demographics, crops fact tables
+│       ├── notebook_gold_2.sql         ← Producer prices fact table + views
+│       ├── notebook_gold_3.sql         ← Agricultural commercial fact table
+│       ├── notebook_gold_4.sql         ← Foreign trade by country (simple join)
+│       └── notebook_gold_5.sql         ← Foreign trade with ISO normalization + export views
+│
+└── test/                               ← Scalability benchmarks
+    ├── benchmark_scalability.sql       ← Notebook: SQL setup + Python benchmarks
+    ├── TEST_free_19k.csv               ← Free tier results (19K rows)
+    ├── TEST_free_232k.csv              ← Free tier results (232K rows)
+    ├── TEST_azure_19k.csv              ← Azure tier results (19K rows)
+    └── TEST_azure_232k.csv             ← Azure tier results (232K rows)
 ```
 
 ---
@@ -139,68 +161,20 @@ CREATE SCHEMA IF NOT EXISTS medallion_lab.gold;
 
 ## Step 3 — Ingest Data into Bronze
 
-Each Excel file in `Bronze/dim_/` and `Bronze/fact_/` must be uploaded to Databricks and registered as a table in the `bronze` schema. Follow these steps for each file:
+Upload the raw source files from `medallion-architecture/Bronze/` to Databricks and register them as tables in the `bronze` schema. Data is ingested as-is — no transformations are applied at this stage. The Silver notebooks will later read these tables and build the relational model.
 
 ### 3.1 — Upload the file
 
 1. In the left sidebar, go to **Catalog** → select your catalog → `bronze` schema.
 2. Click **Create** → **Table**.
-3. Upload the Excel file (`.xlsx`) by dragging it or browsing your computer.
-4. Databricks will preview the data. Set the options:
-   - **File type:** Excel
-   - **First row as header:** ✅ Yes
-   - **Table name:** use the file name without extension, adding `_raw` suffix.
-     - Example: `dim_anio.xlsx` → table name: `dim_anio_raw`
-
-### 3.2 — Naming Convention for Bronze Tables
-
-| File | Table Name in Bronze |
-|---|---|
-| `dim_anio.xlsx` | `dim_anio_raw` |
-| `dim_causas.xlsx` | `dim_causas_raw` |
-| `dim_condicion.xlsx` | `dim_condicion_raw` |
-| `dim_edad.xlsx` | `dim_edad_raw` |
-| `dim_elemento_comercio_exterior.xlsx` | `dim_elemento_comercio_exterior_raw` |
-| `dim_empaque.xlsx` | `dim_empaque_raw` |
-| `dim_etnia.xlsx` | `dim_etnia_raw` |
-| `dim_flores.xlsx` | `dim_flores_raw` |
-| `dim_formacion.xlsx` | `dim_formacion_raw` |
-| `dim_genero.xlsx` | `dim_genero_raw` |
-| `dim_mes.xlsx` | `dim_mes_raw` |
-| `dim_pais_iso.xlsx` | `dim_paises_iso_raw` |
-| `dim_periodo.xlsx` | `dim_periodo_raw` |
-| `dim_producto.xlsx` | `dim_producto_raw` |
-| `dim_producto_comercio_exterior.xlsx` | `dim_producto_comercio_exterior_raw` |
-| `dim_producto_ex_im.xlsx` | `dim_producto_ex_im_raw` |
-| `dim_producto_precios.xlsx` | `dim_producto_precios_raw` |
-| `dim_productor.xlsx` | `dim_productor_raw` |
-| `dim_provincia.xlsx` | `dim_provincia_raw` |
-| `dim_rango_hectareas.xlsx` | `dim_rango_hectareas_raw` |
-| `dim_region.xlsx` | `dim_region_raw` |
-| `dim_superficie.xlsx` | `dim_superficie_raw` |
-| `dim_tipo_cultivo.xlsx` | `dim_tipo_cultivo_raw` |
-| `dim_unidad.xlsx` | `dim_unidad_raw` |
-| `dim_uso_suelo.xlsx` | `dim_uso_suelo_raw` |
-| `fact_causas_permanentes.xlsx` | `th_causas_permanentes_raw` |
-| `fact_causas_transitorios.xlsx` | `th_causas_transitorios_raw` |
-| `fact_comercial_agricola.xlsx` | `th_comercial_agricola_raw` |
-| `fact_comercio_exterior_paises.xlsx` | `th_comercio_exterior_raw` |
-| `fact_edad.xlsx` | `th_edad_raw` |
-| `fact_etnia.xlsx` | `th_etnia_raw` |
-| `fact_flores.xlsx` | `th_flores_empaque_raw` |
-| `fact_formacion.xlsx` | `th_formacion_raw` |
-| `fact_genero.xlsx` | `th_genero_raw` |
-| `fact_precios_productor.xlsx` | `th_precios_productor_raw` |
-| `fact_produccion_agricola.xlsx` | `th_produccion_agricola_raw` |
-| `fact_product_permanentes.xlsx` | `th_product_permanentes_raw` |
-| `fact_product_transitorios.xlsx` | `th_product_transitorios_raw` |
-| `fact_uso_suelo_agricola.xlsx` | `th_uso_suelo_raw` |
+3. Upload the source file by dragging it or browsing your computer.
+4. Set **First row as header:** ✅ Yes and assign a descriptive name (e.g., `bronze.espac_2014`, `bronze.faostat`, `bronze.mag_precios`).
 
 ---
 
-## Step 4 — Clean Data with Silver Notebooks
+## Step 4 — Build Relational Model with Silver Notebooks
 
-The Silver layer notebooks apply data type casting, text normalization, and null filtering to produce clean tables ready for analysis.
+The Silver layer reads the raw Bronze tables and applies the full relational process: data type casting, text normalization, null filtering, and separation into a clean dimensional model of dimensions (`dim_*`) and fact tables (`th_*`).
 
 ### 4.1 — How to Create a Notebook in Databricks
 
@@ -227,6 +201,7 @@ Copy and paste the content of each `.sql` file from `Silver/` into a Databricks 
 
 ### 4.3 — What the Silver notebooks do
 
+- **Relational modeling**: raw Bronze data is transformed into a clean dimensional model, separating business entities into dimension tables (`dim_*`) and measurements into fact tables (`th_*`).
 - **`TRY_CAST` + `REPLACE`**: removes thousands separators (`,` or `.`) and safely casts columns to `INT` or `VARCHAR`.
 - **`REGEXP_REPLACE`**: used for numeric columns in fact tables, applying the same cleaning pattern.
 - **`CASE / INITCAP`**: normalizes province and country names to proper casing.
@@ -260,6 +235,22 @@ The Gold layer joins the clean Silver tables with their dimensions to produce fu
   - `RENDIMIENTO_TALLOS_POR_HA` — flower stem yield per hectare.
   - `VAR_MENSUAL_PCT` — month-over-month price percentage variation using `LAG()` window function.
 - **Views**: analytical summaries pre-built for dashboards and reporting.
+
+---
+
+## Step 6 — Benchmarks & Testing
+
+The `test/` folder contains a Databricks notebook and CSV results for scalability benchmarking.
+
+| File | Description |
+|------|-------------|
+| `benchmark_scalability.sql` | Notebook with SQL setup + Python benchmarks for 4 combinations (free/azure × 19K/232K rows), 5 query types × 10 repetitions each |
+| `TEST_free_19k.csv` | Free tier results on original table (19,345 rows) |
+| `TEST_free_232k.csv` | Free tier results on monthly-expanded table (232,140 rows) |
+| `TEST_azure_19k.csv` | Azure tier results on original table (19,345 rows) |
+| `TEST_azure_232k.csv` | Azure tier results on monthly-expanded table (232,140 rows) |
+
+The notebook first creates `fact_produccion_agricola_mensual` (CROSS JOIN with `dim_mes_clean`), then runs 5 benchmark queries (SELECT *, COUNT(*), WHERE, GROUP BY, JOIN) 10 times each on both table sizes, and saves results to `medallion_lab.gold.benchmark_stats`.
 
 ---
 
@@ -329,17 +320,17 @@ The Gold layer joins the clean Silver tables with their dimensions to produce fu
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                        DATA SOURCES                             │
-│          Excel files (.xlsx) — dim_ and fact_ folders           │
+│          Raw source files — medallion-architecture/Bronze/      │
 └─────────────────────────┬───────────────────────────────────────┘
                           │  Manual upload via Databricks UI
                           ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    🥉 BRONZE LAYER                              │
 │              medallion_lab.bronze.*_raw                         │
-│   Raw tables ingested as-is from source files                   │
-│   25 dimension tables + 14 fact tables                          │
+│   Raw tables ingested as-is from entity source files            │
+│   Data: ESPAC crop surveys, FAOSTAT trade, MAG prices           │
 └─────────────────────────┬───────────────────────────────────────┘
-                          │  Silver notebooks (notebook_1 to 7)
+                          │  Silver notebooks: relational modeling + cleaning
                           │  • TRY_CAST / REPLACE / REGEXP_REPLACE
                           │  • CASE normalization
                           │  • NULL filtering
@@ -348,8 +339,8 @@ The Gold layer joins the clean Silver tables with their dimensions to produce fu
 ┌─────────────────────────────────────────────────────────────────┐
 │                    🥈 SILVER LAYER                              │
 │              medallion_lab.silver.*_clean                       │
-│   Typed, normalized, and deduplicated tables                    │
-│   25 dimension tables + 14 fact tables                          │
+│   Dimensional model: typed, normalized, deduplicated            │
+│   25 clean dimensions + 14 clean fact tables                    │
 └─────────────────────────┬───────────────────────────────────────┘
                           │  Gold notebooks (notebook_gold_1 to 5)
                           │  • LEFT JOIN with dimensions
@@ -359,8 +350,8 @@ The Gold layer joins the clean Silver tables with their dimensions to produce fu
 ┌─────────────────────────────────────────────────────────────────┐
 │                    🥇 GOLD LAYER                                │
 │              medallion_lab.gold.*                               │
-│   Analytics-ready fact tables and views                         │
-│   14 fact tables + 3 analytical views                           │
+│   Analytics-ready facts + KPIs for dashboards & ML              │
+│   14 fact tables + 3 analytical views + yield/price KPIs        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -381,4 +372,4 @@ The Gold layer joins the clean Silver tables with their dimensions to produce fu
 
 ---
 
-*README generated for the Data Agro Ecuador — Medallion Architecture project.*
+*README generated for the Data Agro Ecuador — Medallion Architecture project. Versión en español: [`README.guie.es.md`](./README.guie.es.md).*

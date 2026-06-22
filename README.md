@@ -56,34 +56,47 @@ A complete analytical system that integrates data from **INEC (ESPAC)**, **MAG**
                                 ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                       🥉 BRONZE LAYER                                │
-│              Raw data (CSV, Excel) as received                      │
-│                   25 dimension tables + 14 fact tables              │
+│              Raw data from source entities                          │
+│           ESPAC · FAOSTAT · MAG (CSV / Excel)                      │
 └───────────────────────────────┬─────────────────────────────────────┘
-                                │
+                                │  Data ingestion & registration
                                 ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                       🥈 SILVER LAYER                                │
-│          Cleaned, filtered, and validated data                      │
-│              Typification, normalization, deduplication             │
+│              Dimensional model + data cleaning                      │
+│              25 clean dimensions + 14 clean fact tables             │
 └───────────────────────────────┬─────────────────────────────────────┘
-                                │
+                                │  Enrichment & KPI calculation
                                 ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                       🥇 GOLD LAYER                                  │
-│        Fact tables and dimensions (Data Warehouse)                 │
-│              Thematic Data Marts → Dashboards                       │
+│              Analytics-ready data for dashboards & ML              │
+│              14 fact tables + 3 analytical views + KPIs             │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
+### Layer Quick Guide
+
+| Layer | Content | Location |
+|-------|---------|----------|
+| **🥉 Bronze** | Raw source files as received from INEC (ESPAC), FAOSTAT, and MAG | `medallion-architecture/Bronze/` |
+| **🥈 Silver** | Clean dimensional model: 25 dimensions + 14 fact tables | `medallion-architecture/Silver/` (notebooks) + `Silver/Data/` (source Excel) |
+| **🥇 Gold** | Analytics-ready facts, views, and KPIs for dashboards | `medallion-architecture/Gold/` (notebooks) |
+
+> 📖 For the complete file-by-file structure and step-by-step reproduction guide, see [`README.guie.md`](./README.guie.md).
+
+---
+
 ### Data Marts
 
-| Data Mart | Description |
-|-----------|-------------|
-| **Agricultural Production** | Production by product, province, year |
-| **Flowers** | Flower yield per hectare |
-| **Producer Prices** | Monthly price trends and variations |
-| **Producer Profile** | Demographic characteristics (gender, age, ethnicity, education) |
-| **Foreign Trade** | Exports and imports by country and product |
+| Data Mart | Description | Gold Tables |
+|-----------|-------------|-------------|
+| **Agricultural Production** | Production by product, province, year with yield KPI | `fact_produccion_agricola`, `agg_produccion_region` |
+| **Flowers** | Flower yield per hectare | `fact_flores` |
+| **Producer Profile** | Demographics (gender, age, ethnicity, education) | `fact_genero`, `fact_edad`, `fact_formacion`, `fact_etnia` |
+| **Production & Losses** | Permanent & transitory crops with loss causes | `fact_product_permanentes`, `fact_product_transitorios`, `fact_causas_*` |
+| **Producer Prices** | Monthly price trends and variations | `fact_precios_productor`, views `gold_pp_*` |
+| **Foreign Trade** | Exports and imports by country and product | `fact_comercial_agricola`, `fact_comercio_exterior_paises` |
 
 ---
 
@@ -127,19 +140,11 @@ A complete analytical system that integrates data from **INEC (ESPAC)**, **MAG**
 
 ---
 
-## Key Limitations
-
-- **Databricks Free Edition**: Does not allow public dashboard publishing (closed environments only).
-- **Solution**: Complementary use of Tableau Public for publicly accessible interactive visualizations.
-
----
-
 ## Resources
 
 | Resource | Link |
 |----------|------|
 | 📊 **Live Dashboards** | [Tableau Public - Panorama del Sector Agrícola del Ecuador](https://public.tableau.com/app/profile/jean.avila7337/viz/PanoramadelSectorAgrcoladelEcuador/ResumenDash) |
-| 📖 **Research Article** | Digital 2026 Journal |
 | 🏛️ **INEC - ESPAC** | [https://www.ecuadorencifras.gob.ec/espac/](https://www.ecuadorencifras.gob.ec/espac/) |
 | 🌐 **Ecuador Open Data** | [https://www.datos.gob.ec/](https://www.datos.gob.ec/) |
 | 📊 **FAOSTAT** | [https://www.fao.org/faostat/](https://www.fao.org/faostat/) |
@@ -150,8 +155,14 @@ A complete analytical system that integrates data from **INEC (ESPAC)**, **MAG**
 
 Ing. Ashley Aguilar-Serrano, Ing. Jean Ávila-Villaprado, Ing. Bertha Mazon-Olivo, Ing. Maritza Pinta
 
-> *"Transforming scattered agricultural data into actionable knowledge for Ecuador's productive sector."*
 
 ---
 
-*This README presents the analytical system developed. For technical implementation instructions, see the [main README](./README.md).*
+## Contact
+
+- **Jean Ávila-Villaprado** — [jeanavilavillaprado@hotmail.com](mailto:jeanavilavillaprado@hotmail.com)
+- **Ashley Aguilar-Serrano** — [ashleyas23@hotmail.com](mailto:ashleyas23@hotmail.com)
+
+---
+
+*This README presents the analytical system developed. For technical implementation instructions, see the [implementation guide](./README.guie.md). Para la versión en español, consulta [`README.es.md`](./README.es.md).*
